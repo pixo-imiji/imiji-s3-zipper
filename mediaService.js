@@ -23,10 +23,13 @@ const getValidMedias = async (partyId, isOwner) => {
             const lockedChapters = chapters.filter(chapter => chapter.locked).map(chapter => chapter._id.toString());
             medias = medias.filter(media => media.chapterID ? !lockedChapters.includes(media.chapterID.toString()) : true);
         }
-        return medias.map(media => {
-            names.push(media.title);
-            return { name: getNextFileName(media.title, names, 1), fileId: media._fileID };
+        const tempMedias = [];
+        medias.forEach(media => {
+            const name = getNextFileName(media.title, names, 1);
+            names.push(name);
+            tempMedias.push({name, fileId: media._fileID});
         });
+        return tempMedias;
     } catch (err) {
         console.log(err);
     } finally {
