@@ -7,7 +7,6 @@ const mongoDbQueue = require("@openwar/mongodb-queue");
 const hour = 60 * 60;
 
 const getNextMsg = async (queue) => {
-    console.log("search for message...");
     const msg = await queue.get({visibility: hour});
     if (msg) {
         const {payload} = msg;
@@ -15,7 +14,6 @@ const getNextMsg = async (queue) => {
         await zipper(email, partyId, isOwner);
         console.log("sent email to:", email);
     } else {
-        console.log("polling....");
         return setTimeout(() => getNextMsg(queue), 2500);
     }
     return process.nextTick(() => getNextMsg(queue));
