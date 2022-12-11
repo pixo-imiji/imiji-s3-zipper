@@ -37,7 +37,7 @@ module.exports = async (email, partyId, isOwner) => {
                         s3,
                         bucket: env.objectStore.buckets.origin,
                         preserveFolderStructure: true,
-                        debug: true
+                        // debug: true
                     }, partyId, files, filesZip)
                     .pipe(uploadFromStream(email))
             };
