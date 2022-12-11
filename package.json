@@ -1,0 +1,10 @@
+{
+  "name": "imiji-s3-zipper",
+  "version": "1.0.0",
+  "dependencies": {
+    "aws-sdk": "^2.1272.0",
+    "mongodb": "^4.12.1",
+    "s3-zip": "^3.2.1",
+    "xml-stream": "^0.4.5"
+  }
+}
