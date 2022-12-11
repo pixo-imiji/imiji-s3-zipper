@@ -1,41 +1,29 @@
-const stream = require("stream");
-const AWS = require("aws-sdk");
-const s3Zip = require("s3-zip");
+const zipper = require("./index"); // pass email and partyId required
+
+const {MongoClient} = require("mongodb");
 const env = require("./env.production");
+const mongoDbQueue = require("@openwar/mongodb-queue");
 
-const folder = "6332bd07869f441516519897";
-const email = "beckstp@googlemail.com";
-const zipFileName = email + "_" + new Date().getTime() + "_album.zip";
+const hour = 60 * 60;
 
-const mediaService = require("./mediaService");
-const s3 = new AWS.S3(env.objectStore.ibmS3);
-
-const day = 86400;
-const createZipLink = (params) => s3.getSignedUrl("getObject", {...params, Expires: day * 2});
-
-const uploadFromStream = () => {
-    const pass = new stream.PassThrough();
-    const params = {Bucket: env.objectStore.buckets.zip, Key: zipFileName, Body: pass};
-    s3.upload(params, (err, data) => err ? console.log(err) : console.log("done!"));
-    pass.on("end", () => console.log("link:", createZipLink({Bucket: env.objectStore.buckets.zip, Key: zipFileName})));
-    return pass;
+const getNextMsg = async (queue) => {
+    console.log("polling...");
+    const msg = await queue.get({visibility: hour});
+    if (msg) {
+        const {payload} = msg;
+        const {partyId, email, isOwner} = payload;
+        await zipper(email, partyId, isOwner);
+    } else {
+        console.log("no job found");
+        return setTimeout(() => getNextMsg(queue), 2500);
+    }
+    return process.nextTick(() => getNextMsg(queue));
 };
 
-const createZipFile = async () => {
-    const medias = await mediaService.getValidMedias(folder);
-    const files = medias.map(media => "/" + media.fileId);
-    console.log("files count:", files.length);
-    const filesZip = medias.map(media => ({name: media.name}));
-    s3Zip
-        .archive({
-            s3,
-            bucket: env.objectStore.buckets.origin,
-            preserveFolderStructure: true,
-            // debug: true
-        }, folder, files, filesZip)
-        .pipe(uploadFromStream())
-};
-
-createZipFile()
-    .then(() => console.log("start.."))
-    .catch(console.log);
+(async () => {
+    const client = await MongoClient.connect(env.mongodb.ibm.url);
+    const db = client.db(env.queue.zipper.dbName);
+    await client.connect();
+    const queue = mongoDbQueue(db, env.queue.zipper.queueName);
+    await getNextMsg(queue);
+})();
