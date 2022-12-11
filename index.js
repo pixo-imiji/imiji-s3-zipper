@@ -20,10 +20,10 @@ module.exports = async (email, partyId, isOwner) => {
                 const params = {Bucket: env.objectStore.buckets.zip, Key: zipFileName, Body: pass};
                 s3.upload(params, (err, data) => err ? reject(err) : null);
                 pass.on("error", reject);
-                pass.on("end", () => emailService
+                pass.on("end", () => setTimeout(() => emailService
                     .sendDownloadLink(email, [createZipLink({Bucket: params.Bucket, Key: params.Key})])
                     .then(resolve)
-                    .catch(reject)
+                    .catch(reject), 10000)
                 );
                 return pass;
             };
