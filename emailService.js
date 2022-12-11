@@ -1,11 +1,7 @@
 const axios = require("axios");
 const env = require("./env.production");
 
-const sendDownloadLink = async (email = "", links = []) => await axios.post(env.fun.downloadZipMail.url, {
-    email,
-    links,
-    zipPassword: null
-}, {
+const sendDownloadLink = async (email = "", links = []) => await axios.post(env.fun.downloadZipMail.url, { email, links, serviceType: "download" }, {
     params: {
         blocking: true,
     },

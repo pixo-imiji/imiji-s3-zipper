@@ -7,14 +7,15 @@ const mongoDbQueue = require("@openwar/mongodb-queue");
 const hour = 60 * 60;
 
 const getNextMsg = async (queue) => {
-    console.log("polling...");
+    console.log("search for message...");
     const msg = await queue.get({visibility: hour});
     if (msg) {
         const {payload} = msg;
         const {partyId, email, isOwner} = payload;
         await zipper(email, partyId, isOwner);
+        console.log("sent email to:", email);
     } else {
-        console.log("no job found");
+        console.log("polling....");
         return setTimeout(() => getNextMsg(queue), 2500);
     }
     return process.nextTick(() => getNextMsg(queue));
@@ -25,5 +26,5 @@ const getNextMsg = async (queue) => {
     const db = client.db(env.queue.zipper.dbName);
     await client.connect();
     const queue = mongoDbQueue(db, env.queue.zipper.queueName);
-    await getNextMsg(queue);
+    return getNextMsg(queue);
 })();

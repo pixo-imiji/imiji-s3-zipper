@@ -8,21 +8,25 @@ const getNextFileName = (fileName = "", names = [], round = 0) => {
     }
     return fileName;
 };
+
 const getValidMedias = async (partyId, isOwner) => {
     const client = await MongoClient.connect(env.mongodb.ibm.url);
     try {
         const db = client.db(dbName);
         const mediaModel = db.collection("media");
         let medias = await mediaModel.find({ partyID: ObjectId(partyId), state: "published" }).toArray();
+        const names = [];
         if (!isOwner && medias.length > 0) {
             const {partyID} = medias[0];
             const partyModel = db.collection("parties");
             const {chapters} = await partyModel.findOne({_id: partyID});
-            const lockedChapters = chapters.filter(chapter => chapter.locked).map(chapter => chapter._id.toSigned());
-            medias = medias.filter(media => !lockedChapters.includes(media.chapterID.toString()));
+            const lockedChapters = chapters.filter(chapter => chapter.locked).map(chapter => chapter._id.toString());
+            medias = medias.filter(media => media.chapterID ? !lockedChapters.includes(media.chapterID.toString()) : true);
         }
-        const names = medias.map(media => media.title);
-        return medias.map(media => ({ name: getNextFileName(media.title, names, 1), fileId: media._fileID }));
+        return medias.map(media => {
+            names.push(media.title);
+            return { name: getNextFileName(media.title, names, 1), fileId: media._fileID };
+        });
     } catch (err) {
         console.log(err);
     } finally {
