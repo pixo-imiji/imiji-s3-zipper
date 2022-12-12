@@ -4,14 +4,13 @@ const {MongoClient} = require("mongodb");
 const env = require("./env.production");
 const mongoDbQueue = require("@openwar/mongodb-queue");
 
-const hour = 60 * 60;
-
 const getNextMsg = async (queue) => {
     const msg = await queue.get();
     if (msg) {
         const {payload} = msg;
         const {partyId, email, isOwner} = payload;
         await zipper(email, partyId, isOwner);
+        await queue.ack(msg.ack);
         console.log("sent email to:", email);
     } else {
         return setTimeout(() => getNextMsg(queue), 2500);
