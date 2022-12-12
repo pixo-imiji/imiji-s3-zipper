@@ -38,7 +38,8 @@ const getValidMedias = async (partyId, isOwner) => {
         const tempMedias = [];
         medias.forEach(media => {
             let name = getNextFileName(media.title, names, 1);
-            name = media.chapter ? media.chapter.title + "/" + name : name;
+            const defaultChapterName = getNextFileName("all", chapters.map(chapter => chapter.title), 1);
+            name = media.chapter ? media.chapter.title + "/" + name : defaultChapterName + "/" + name;
             names.push(name);
             tempMedias.push({name, fileId: media._fileID});
         });
