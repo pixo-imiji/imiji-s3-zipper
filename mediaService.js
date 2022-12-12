@@ -16,16 +16,29 @@ const getValidMedias = async (partyId, isOwner) => {
         const mediaModel = db.collection("media");
         let medias = await mediaModel.find({ partyID: ObjectId(partyId), state: "published" }).toArray();
         const names = [];
+        if (medias.length === 0) {
+            return medias;
+        }
+        const {partyID} = medias[0];
+        const partyModel = db.collection("parties");
+        const {chapters} = await partyModel.findOne({_id: partyID});
         if (!isOwner && medias.length > 0) {
-            const {partyID} = medias[0];
-            const partyModel = db.collection("parties");
-            const {chapters} = await partyModel.findOne({_id: partyID});
-            const lockedChapters = chapters.filter(chapter => chapter.locked).map(chapter => chapter._id.toString());
+            const lockedChapters = chapters.length ? chapters.filter(chapter => chapter.locked).map(chapter => chapter._id.toString()) : [];
             medias = medias.filter(media => media.chapterID ? !lockedChapters.includes(media.chapterID.toString()) : true);
         }
+        medias = medias.map(media => {
+            if (media.chapterID) {
+                const chapter = chapters.find(chapter => chapter._id.toString() === media.chapterID.toString());
+                if (chapter) {
+                    media.chapter = chapter;
+                }
+            }
+            return media;
+        });
         const tempMedias = [];
         medias.forEach(media => {
-            const name = getNextFileName(media.title, names, 1);
+            let name = getNextFileName(media.title, names, 1);
+            name = media.chapter ? media.chapter.title + "/" + name : name;
             names.push(name);
             tempMedias.push({name, fileId: media._fileID});
         });
