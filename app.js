@@ -5,7 +5,7 @@ const env = require("./env.production");
 const mongoDbQueue = require("@openwar/mongodb-queue");
 
 const getNextMsg = async (queue) => {
-    const msg = await queue.get();
+    const msg = await queue.get({visibility: 60 * 60 * 3});
     if (msg) {
         const {payload} = msg;
         const {partyId, email, isOwner} = payload;
