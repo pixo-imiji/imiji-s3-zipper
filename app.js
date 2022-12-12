@@ -7,7 +7,7 @@ const mongoDbQueue = require("@openwar/mongodb-queue");
 const hour = 60 * 60;
 
 const getNextMsg = async (queue) => {
-    const msg = await queue.get({visibility: hour});
+    const msg = await queue.get();
     if (msg) {
         const {payload} = msg;
         const {partyId, email, isOwner} = payload;
