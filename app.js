@@ -5,12 +5,12 @@ const env = require("./env.production");
 const mongoDbQueue = require("mongodb-queue");
 
 const getNextMsg = async (queue) => {
-    const msg = await queue.get({visibility: 60 * 60 * 3});
+    const msg = await (new Promise((resolve, reject) =>  queue.get({visibility: 60 * 60 * 3}, (err, msg) => err ? reject(err) : resolve(msg))));
     if (msg) {
         const {payload} = msg;
         const {partyId, email, isOwner} = payload;
         await zipper(email, partyId, isOwner);
-        await queue.ack(msg.ack);
+        await (new Promise((resolve, reject) =>  queue.ack((err, msg) => err ? reject(err) : resolve(msg))));
         console.log("sent email to:", email);
     } else {
         return setTimeout(() => getNextMsg(queue), 2500);
