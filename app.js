@@ -2,7 +2,7 @@ const zipper = require("./index"); // pass email and partyId required
 
 const {MongoClient} = require("mongodb");
 const env = require("./env.production");
-const mongoDbQueue = require("@openwar/mongodb-queue");
+const mongoDbQueue = require("mongodb-queue");
 
 const getNextMsg = async (queue) => {
     const msg = await queue.get({visibility: 60 * 60 * 3});

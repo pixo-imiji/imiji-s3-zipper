@@ -2,10 +2,10 @@
   "name": "imiji-s3-zipper",
   "version": "1.0.0",
   "dependencies": {
-    "@openwar/mongodb-queue": "^4.0.0",
     "aws-sdk": "^2.1272.0",
     "axios": "^1.2.1",
     "mongodb": "^4.12.1",
+    "mongodb-queue": "^4.0.0",
     "s3-zip": "^3.2.1"
   }
 }
