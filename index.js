@@ -30,6 +30,9 @@ module.exports = async (email, partyId, isOwner) => {
 
             const createZipFile = async () => {
                 const medias = await mediaService.getValidMedias(partyId, isOwner);
+                if (process.env.LOG_LEVEL === "debug") {
+                    console.log("total number of medias:", medias.length);
+                }
                 const files = medias.map(media => "/" + media.fileId);
                 const filesZip = medias.map(media => ({name: media.name}));
                 s3Zip
