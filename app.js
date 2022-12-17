@@ -10,7 +10,7 @@ const getNextMsg = async (queue) => {
         const {payload} = msg;
         const {partyId, email, isOwner} = payload;
         await zipper(email, partyId, isOwner);
-        await (new Promise((resolve, reject) =>  queue.ack((err, msg) => err ? reject(err) : resolve(msg)))).then();
+        await (new Promise((resolve, reject) =>  queue.ack(msg.ack, (err, msg) => err ? reject(err) : resolve(msg)))).then();
         console.log("sent email to:", email);
     } else {
         return setTimeout(() => getNextMsg(queue), 2500);
