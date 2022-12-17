@@ -5,7 +5,7 @@
     "aws-sdk": "^2.1272.0",
     "axios": "^1.2.1",
     "mongodb": "^4.12.1",
-    "mongodb-queue": "^4.0.0",
+    "mongodb-queue-up": "^5.0.1",
     "s3-zip": "^3.2.1"
   }
 }
