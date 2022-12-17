@@ -43,6 +43,7 @@ module.exports = async (email, partyId, isOwner) => {
             };
             return createZipFile();
         } catch (e) {
+            console.log(e);
             reject(e);
         }
     });
