@@ -2,7 +2,7 @@ const zipper = require("./index"); // pass email and partyId required
 
 const {MongoClient} = require("mongodb");
 const env = require("./env.production");
-const mongoDbQueue = require("mongodb-queue");
+const mongoDbQueue = require("mongodb-queue-up");
 
 const getNextMsg = async (queue) => {
     const msg = await (new Promise((resolve, reject) =>  queue.get({visibility: 60 * 60 * 3}, (err, msg) => err ? reject(err) : resolve(msg)))).then();
