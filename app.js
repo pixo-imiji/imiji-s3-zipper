@@ -7,11 +7,13 @@ const mongoDbQueue = require("mongodb-queue");
 const getNextMsg = async (queue) => {
     const msg = await (new Promise((resolve, reject) =>  queue.get({visibility: 60 * 60 * 3}, (err, msg) => err ? reject(err) : resolve(msg))));
     if (msg) {
+        console.log("process:", msg.ack);
         const {payload} = msg;
         const {partyId, email, isOwner} = payload;
         await zipper(email, partyId, isOwner);
-        await (new Promise((resolve, reject) =>  queue.ack(msg.ack, (err, msg) => err ? reject(err) : resolve(msg)))).then();
         console.log("sent email to:", email);
+        await (new Promise((resolve, reject) =>  queue.ack(msg.ack, (err, msg) => err ? reject(err) : resolve(msg)))).then();
+        console.log("deleted job:", msg.ack);
     } else {
         return setTimeout(() => getNextMsg(queue), 2500);
     }
