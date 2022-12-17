@@ -46,6 +46,6 @@ module.exports = async (email, partyId, isOwner) => {
             console.log(e);
             reject(e);
         }
-    });
+    }).then(() => {});
 
 };

@@ -5,7 +5,7 @@ const env = require("./env.production");
 const mongoDbQueue = require("mongodb-queue");
 
 const getNextMsg = async (queue) => {
-    const msg = await (new Promise((resolve, reject) =>  queue.get({visibility: 60 * 60 * 3}, (err, msg) => err ? reject(err) : resolve(msg))));
+    const msg = await (new Promise((resolve, reject) =>  queue.get({visibility: 60 * 60 * 3}, (err, msg) => err ? reject(err) : resolve(msg)))).then();
     if (msg) {
         const {payload, ack} = msg;
         console.log("process:", ack);
